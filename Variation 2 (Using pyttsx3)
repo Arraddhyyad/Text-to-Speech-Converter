@@ -1,0 +1,32 @@
+import pyttsx3
+import PyPDF2
+
+# Open the PDF file
+pdf_file = 'demo.pdf'
+pdfobj = open(pdf_file, 'rb')
+pdfreader = PyPDF2.PdfReader(pdfobj)
+
+# Extract text from each page
+text = ""
+for page_number in range(len(pdfreader.pages)):
+    page = pdfreader.pages[page_number]
+    text += page.extract_text()
+
+pdfobj.close()
+
+# Initialize the TTS engine
+engine = pyttsx3.init()
+
+# customize the voice, rate, and volume
+rate = engine.getProperty('rate')
+engine.setProperty('rate', rate - 50)  # Decrease speed by 50 words per minute
+
+volume = engine.getProperty('volume')
+engine.setProperty('volume', volume + 0.25)  # Increase volume by 25%
+
+voices = engine.getProperty('voices')
+engine.setProperty('voice', voices[1].id)  # Change voice (0 for male, 1 for female)
+
+# Save the speech to a file
+engine.save_to_file(text, 'output.wav')
+engine.runAndWait()
