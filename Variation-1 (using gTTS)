@@ -1,0 +1,34 @@
+from gtts import gTTS
+from pydub import AudioSegment
+from pydub.playback import play
+import PyPDF2
+
+# Open the PDF file
+pdf_file = 'demo.pdf'
+pdfobj = open(pdf_file, 'rb')
+pdfreader = PyPDF2.PdfReader(pdfobj)
+
+# Extract text from each page
+text = ""
+for page_number in range(len(pdfreader.pages)):
+    page = pdfreader.pages[page_number]
+    text += page.extract_text()
+
+pdfobj.close()
+
+# Print the extracted text 
+print(text)
+
+# Convert text to speech using gTTS
+tts = gTTS(text=text, lang='en')
+tts.save("output.mp3")
+
+#modulating the voice
+audio = AudioSegment.from_mp3("output.mp3")
+speed_change_factor = 1.2  # Increase by 20%
+new_sample_rate = int(audio.frame_rate * speed_change_factor)
+audio = audio._spawn(audio.raw_data, overrides={'frame_rate': new_sample_rate})
+audio = audio.set_frame_rate(44100)  # Ensure the frame rate is standard
+audio.export("output_adjusted.mp3", format="mp3")
+
+
